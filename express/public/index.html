@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reqlens Express Demo</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <p class="eyebrow">Reqlens example</p>
+        <h1>Click routes. Watch the SDK report requests.</h1>
+        <p class="lede">
+          This page calls the local Express API. The Reqlens middleware tracks each
+          API response and sends logs to your ingest API.
+        </p>
+      </section>
+
+      <section class="controls" aria-label="Test API routes">
+        <button data-route="/ok">GET /ok</button>
+        <button data-route="/users/42">GET /users/42</button>
+        <button data-route="/slow">GET /slow</button>
+        <button data-route="/error">GET /error</button>
+      </section>
+
+      <section class="result" aria-live="polite">
+        <div>
+          <span class="label">Last request</span>
+          <strong id="route">None yet</strong>
+        </div>
+        <pre id="output">Click a route to start.</pre>
+      </section>
+    </main>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

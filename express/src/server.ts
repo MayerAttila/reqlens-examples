@@ -1,7 +1,13 @@
 import express from "express";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { reqlens } from "@reqlens/node-sdk";
 
 const app = express();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const publicDir = path.resolve(__dirname, "../public");
+
+app.use(express.static(publicDir));
 
 app.use(
   reqlens({
@@ -30,6 +36,10 @@ app.get("/error", (_req, res) => {
 app.get("/slow", async (_req, res) => {
   await new Promise((resolve) => setTimeout(resolve, 750));
   res.json({ slow: true });
+});
+
+app.get("*", (_req, res) => {
+  res.sendFile(path.join(publicDir, "index.html"));
 });
 
 const port = Number(process.env.PORT ?? 4000);

@@ -5,6 +5,7 @@
   "description": "Example apps for testing Reqlens SDKs.",
   "type": "module",
   "scripts": {
+    "dev": "npm run dev:express",
     "dev:express": "tsx express/src/server.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
