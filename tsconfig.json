@@ -10,6 +10,7 @@
     "noEmit": true
   },
   "include": [
-    "express/src/**/*.ts"
+    "express/src/**/*.ts",
+    "web/src/**/*.ts"
   ]
 }

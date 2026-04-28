@@ -5,19 +5,26 @@
   "description": "Example apps for testing Reqlens SDKs.",
   "type": "module",
   "scripts": {
-    "dev": "npm run dev:express",
-    "dev:express": "tsx express/src/server.ts",
+    "dev": "concurrently -k -n api,web -c blue,green \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "tsx express/src/server.ts",
+    "dev:web": "vite --host 0.0.0.0 --port 5173 web",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@reqlens/node-sdk": "file:../reqlens-node",
+    "concurrently": "^9.2.1",
+    "cors": "^2.8.6",
     "express": "^4.18.3"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.2.4",
+    "@types/cors": "^2.8.19",
     "@types/express": "^4.17.21",
     "@types/node": "^20.12.7",
+    "tailwindcss": "^4.2.4",
     "tsx": "^4.7.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vite": "^8.0.10"
   },
   "engines": {
     "node": ">=18"

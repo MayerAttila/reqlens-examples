@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(235, 101, 72, 0.28), transparent 34rem),
+    linear-gradient(135deg, #f7f0dd 0%, #d8c8a2 100%);
+  font-family: Georgia, "Times New Roman", serif;
+}

@@ -1,12 +1,11 @@
 # Express Demo
 
-Runs an Express app with the local Reqlens Node SDK and a small frontend for
-calling test routes.
+Runs an Express API with the local Reqlens Node SDK.
 
-Start `reqlens-api` first on port `3001`, then run:
+Start `reqlens-api` first on port `3001`, then run from the repo root:
 
 ```bash
-npm run dev:express
+npm run dev
 ```
 
-Open `http://localhost:4000`.
+The frontend runs separately with Vite at `http://localhost:5173`.

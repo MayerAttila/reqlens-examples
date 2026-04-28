@@ -1,13 +1,14 @@
+import cors from "cors";
 import express from "express";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { reqlens } from "@reqlens/node-sdk";
 
 const app = express();
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const publicDir = path.resolve(__dirname, "../public");
 
-app.use(express.static(publicDir));
+app.use(
+  cors({
+    origin: process.env.WEB_ORIGIN ?? "http://localhost:5173"
+  })
+);
 
 app.use(
   reqlens({
@@ -38,12 +39,8 @@ app.get("/slow", async (_req, res) => {
   res.json({ slow: true });
 });
 
-app.get("*", (_req, res) => {
-  res.sendFile(path.join(publicDir, "index.html"));
-});
-
 const port = Number(process.env.PORT ?? 4000);
 
 app.listen(port, () => {
-  console.log(`Reqlens Express demo listening on http://localhost:${port}`);
+  console.log(`Reqlens Express API listening on http://localhost:${port}`);
 });
