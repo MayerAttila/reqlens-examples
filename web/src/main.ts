@@ -2,7 +2,28 @@ import "./styles.css";
 
 const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
 const app = document.querySelector<HTMLDivElement>("#app");
-const routes = ["/ok", "/users/42", "/slow", "/error"];
+const requests = [
+  { label: "Success", method: "GET", path: "/demo/get/success" },
+  { label: "Slow", method: "GET", path: "/demo/get/slow" },
+  { label: "Error", method: "GET", path: "/demo/get/error" },
+  { body: { name: "Ada Lovelace" }, label: "Success", method: "POST", path: "/demo/post/success" },
+  { body: { name: "Slow Ada" }, label: "Slow", method: "POST", path: "/demo/post/slow" },
+  { body: { email: "bad-email" }, label: "Error", method: "POST", path: "/demo/post/error" },
+  { body: { name: "Grace Hopper" }, label: "Success", method: "PUT", path: "/demo/put/success" },
+  { body: { name: "Slow Grace" }, label: "Slow", method: "PUT", path: "/demo/put/slow" },
+  { body: { name: "Conflict Grace" }, label: "Error", method: "PUT", path: "/demo/put/error" },
+  { body: { role: "admin" }, label: "Success", method: "PATCH", path: "/demo/patch/success" },
+  { body: { role: "slow-admin" }, label: "Slow", method: "PATCH", path: "/demo/patch/slow" },
+  { body: { role: "" }, label: "Error", method: "PATCH", path: "/demo/patch/error" },
+  { label: "Success", method: "DELETE", path: "/demo/delete/success" },
+  { label: "Slow", method: "DELETE", path: "/demo/delete/slow" },
+  { label: "Error", method: "DELETE", path: "/demo/delete/error" }
+] satisfies Array<{
+  body?: Record<string, string>;
+  label: "Error" | "Slow" | "Success";
+  method: "DELETE" | "GET" | "PATCH" | "POST" | "PUT";
+  path: string;
+}>;
 
 if (app) {
   app.innerHTML = `
@@ -21,15 +42,18 @@ if (app) {
         </p>
       </section>
 
-      <section class="my-10 grid grid-cols-1 gap-3 md:grid-cols-4" aria-label="Test API routes">
-        ${routes
+      <section class="my-10 grid grid-cols-1 gap-3 md:grid-cols-3" aria-label="Test API routes">
+        ${requests
           .map(
-            (route) => `
+            (request) => `
               <button
                 class="rounded-[18px] border-2 border-stone-950 bg-[#f9f4e5] p-5 font-sans text-sm font-black text-stone-950 shadow-[5px_5px_0_#1d1a16] transition hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-[2px_2px_0_#1d1a16]"
-                data-route="${route}"
+                data-method="${request.method}"
+                data-path="${request.path}"
               >
-                GET ${route}
+                <span class="block text-xs uppercase tracking-[0.12em] text-red-900">${request.label}</span>
+                <span class="mt-1 block">${request.method}</span>
+                <span class="mt-1 block break-all text-xs font-semibold text-stone-700">${request.path}</span>
               </button>
             `
           )
@@ -51,28 +75,42 @@ if (app) {
 
 const output = document.querySelector<HTMLPreElement>("#output");
 const routeLabel = document.querySelector<HTMLElement>("#route");
-const buttons = document.querySelectorAll<HTMLButtonElement>("button[data-route]");
+const buttons = document.querySelectorAll<HTMLButtonElement>("button[data-method][data-path]");
 
 buttons.forEach((button) => {
   button.addEventListener("click", async () => {
-    const route = button.dataset.route;
+    const method = button.dataset.method;
+    const path = button.dataset.path;
 
-    if (!route || !output || !routeLabel) {
+    if (!method || !path || !output || !routeLabel) {
       return;
     }
 
-    routeLabel.textContent = route;
+    const request = requests.find(
+      (item) => item.method === method && item.path === path
+    );
+
+    routeLabel.textContent = `${method} ${path}`;
     output.textContent = "Loading...";
 
     try {
       const startedAt = performance.now();
-      const response = await fetch(`${apiUrl}${route}`);
-      const body = await response.json();
+      const response = await fetch(`${apiUrl}${path}`, {
+        body: request?.body ? JSON.stringify(request.body) : undefined,
+        headers: request?.body ? { "content-type": "application/json" } : undefined,
+        method
+      });
+      const body =
+        response.status === 204
+          ? null
+          : await response.json();
       const durationMs = Math.round(performance.now() - startedAt);
 
       output.textContent = JSON.stringify(
         {
           apiUrl,
+          method,
+          path,
           status: response.status,
           durationMs,
           body
