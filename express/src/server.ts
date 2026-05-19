@@ -22,7 +22,6 @@ app.use(
     capture: {
       requestBody: "errors-only",
       responseBody: "errors-only",
-      slowRequestThresholdMs: 750,
       redactKeys: ["authorization", "card", "password", "secret", "token"]
     },
     onError: (error) => {
