@@ -19,6 +19,12 @@ app.use(
   reqlens({
     apiKey: process.env.REQLENS_API_KEY ?? "dev_key",
     endpoint: process.env.REQLENS_ENDPOINT ?? "http://localhost:3001/ingest",
+    capture: {
+      requestBody: "errors-only",
+      responseBody: "errors-only",
+      slowRequestThresholdMs: 750,
+      redactKeys: ["authorization", "card", "password", "secret", "token"]
+    },
     onError: (error) => {
       if (process.env.NODE_ENV !== "production") {
         console.warn("[reqlens]", error);
@@ -53,8 +59,15 @@ app.post("/demo/post/slow", async (req, res) => {
   res.status(201).json({ method: "POST", result: "slow", body: req.body });
 });
 
-app.post("/demo/post/error", (_req, res) => {
-  res.status(422).json({ method: "POST", error: "demo post validation error" });
+app.post("/demo/post/error", (req, res) => {
+  res.status(422).json({
+    method: "POST",
+    error: "demo post validation error",
+    fields: {
+      email: req.body?.email ? "Invalid email address" : "Email is required",
+      planId: "Plan is not available"
+    }
+  });
 });
 
 app.put("/demo/put/success", (req, res) => {
@@ -66,8 +79,15 @@ app.put("/demo/put/slow", async (req, res) => {
   res.json({ method: "PUT", result: "slow", body: req.body });
 });
 
-app.put("/demo/put/error", (_req, res) => {
-  res.status(409).json({ method: "PUT", error: "demo put conflict" });
+app.put("/demo/put/error", (req, res) => {
+  res.status(409).json({
+    method: "PUT",
+    error: "demo put conflict",
+    conflict: {
+      id: req.body?.id ?? "unknown",
+      field: "version"
+    }
+  });
 });
 
 app.patch("/demo/patch/success", (req, res) => {
@@ -79,8 +99,12 @@ app.patch("/demo/patch/slow", async (req, res) => {
   res.json({ method: "PATCH", result: "slow", body: req.body });
 });
 
-app.patch("/demo/patch/error", (_req, res) => {
-  res.status(400).json({ method: "PATCH", error: "demo patch bad request" });
+app.patch("/demo/patch/error", (req, res) => {
+  res.status(400).json({
+    method: "PATCH",
+    error: "demo patch bad request",
+    rejectedFields: Object.keys(req.body ?? {})
+  });
 });
 
 app.delete("/demo/delete/success", (_req, res) => {
