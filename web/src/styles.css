@@ -1,9 +1,369 @@
 @import "tailwindcss";
 
+:root {
+  color: #f7f7f8;
+  background: #1b1b1d;
+  font-family: Inter, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   background:
-    radial-gradient(circle at 20% 10%, rgba(235, 101, 72, 0.28), transparent 34rem),
-    linear-gradient(135deg, #f7f0dd 0%, #d8c8a2 100%);
-  font-family: Georgia, "Times New Roman", serif;
+    radial-gradient(circle at 48% -8%, rgba(155, 99, 223, 0.2), transparent 28rem),
+    #1b1b1d;
+}
+
+button,
+a {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.example-shell {
+  width: min(1480px, calc(100% - 48px));
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 28px 0 48px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: #f7f7f8;
+  font-size: 20px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.brand-mark {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(155, 99, 223, 0.18);
+  color: #aa75e7;
+  font-weight: 950;
+}
+
+.environment-pill,
+.count-pill,
+.method-pill,
+.state-pill,
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  border-radius: 999px;
+  font-weight: 900;
+}
+
+.environment-pill {
+  gap: 9px;
+  padding: 10px 14px;
+  background: #303136;
+  color: #f7f7f8;
+  font-size: 13px;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #9b63df;
+  box-shadow: 0 0 0 5px rgba(155, 99, 223, 0.18);
+}
+
+.panel {
+  border-radius: 28px;
+  background: #1f2024;
+}
+
+.eyebrow {
+  margin: 0 0 14px;
+  color: #aa75e7;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+h2,
+p {
+  margin-top: 0;
+}
+
+h2 {
+  margin-bottom: 0;
+  color: #f7f7f8;
+  font-size: 24px;
+  font-weight: 950;
+}
+
+.result-stats dt {
+  color: #b9bac1;
+  font-size: 14px;
+}
+
+.workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(380px, 0.75fr);
+  gap: 24px;
+  align-items: start;
+  padding-top: 44px;
+}
+
+.panel {
+  padding: 24px;
+}
+
+.panel-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 22px;
+}
+
+.count-pill {
+  padding: 8px 12px;
+  background: #303136;
+  color: #b9bac1;
+  font-size: 12px;
+}
+
+.route-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.route-card {
+  display: grid;
+  gap: 18px;
+  min-height: 132px;
+  padding: 16px;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  background: #17181c;
+  color: #f7f7f8;
+  text-align: left;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.route-card:hover,
+.route-card.is-active {
+  border-color: rgba(155, 99, 223, 0.72);
+  background: #202127;
+  transform: translateY(-2px);
+}
+
+.route-card.is-loading {
+  opacity: 0.72;
+}
+
+.route-card.slow {
+  background: linear-gradient(135deg, rgba(80, 43, 24, 0.82), #17181c 58%);
+}
+
+.route-card.error {
+  background: linear-gradient(135deg, rgba(72, 28, 33, 0.82), #17181c 58%);
+}
+
+.route-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.method-pill,
+.state-pill,
+.status-badge {
+  padding: 7px 10px;
+  font-size: 12px;
+}
+
+.method-get {
+  background: rgba(155, 99, 223, 0.22);
+  color: #c79cff;
+}
+
+.method-post {
+  background: rgba(89, 205, 226, 0.18);
+  color: #6ee6f6;
+}
+
+.method-put {
+  background: rgba(253, 224, 71, 0.16);
+  color: #fde68a;
+}
+
+.method-patch {
+  background: rgba(251, 146, 60, 0.16);
+  color: #fdba74;
+}
+
+.method-delete {
+  background: rgba(244, 63, 94, 0.18);
+  color: #fda4af;
+}
+
+.state-pill {
+  background: #303136;
+  color: #b9bac1;
+}
+
+.route-card.slow .state-pill {
+  background: rgba(111, 60, 30, 0.8);
+  color: #f7b879;
+}
+
+.route-card.error .state-pill {
+  background: rgba(94, 35, 43, 0.82);
+  color: #ffabab;
+}
+
+.route-path {
+  align-self: end;
+  color: #d7d7dc;
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.response-panel {
+  position: sticky;
+  top: 24px;
+}
+
+.status-badge {
+  min-width: 70px;
+  justify-content: center;
+}
+
+.status-muted {
+  background: #303136;
+  color: #b9bac1;
+}
+
+.status-success {
+  background: rgba(155, 99, 223, 0.28);
+  color: #c79cff;
+}
+
+.status-error {
+  background: rgba(93, 38, 48, 0.95);
+  color: #ffabab;
+}
+
+.result-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 18px;
+}
+
+.result-stats div {
+  min-height: 92px;
+  padding: 16px;
+  border-radius: 18px;
+  background: #17181c;
+}
+
+.result-stats dd {
+  margin: 10px 0 0;
+  color: #f7f7f8;
+  font-size: 28px;
+  font-weight: 950;
+}
+
+.response-output {
+  min-height: 360px;
+  max-height: 520px;
+  margin: 0;
+  padding: 20px;
+  overflow: auto;
+  border-radius: 18px;
+  background: #111216;
+  color: #e7e7eb;
+  font-size: 13px;
+  line-height: 1.65;
+  scrollbar-color: #704f99 rgba(255, 255, 255, 0.04);
+  scrollbar-width: thin;
+}
+
+.response-output::-webkit-scrollbar {
+  width: 0.55rem;
+  height: 0.55rem;
+}
+
+.response-output::-webkit-scrollbar-track {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.response-output::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: #704f99;
+  background-clip: content-box;
+}
+
+@media (max-width: 1120px) {
+  .workspace-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .response-panel {
+    position: static;
+  }
+}
+
+@media (max-width: 760px) {
+  .example-shell {
+    width: min(100% - 28px, 1480px);
+    padding-top: 18px;
+  }
+
+  .topbar,
+  .panel-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .panel {
+    border-radius: 22px;
+    padding: 20px;
+  }
+
+  .route-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .route-card {
+    min-height: 112px;
+  }
+
+  .result-stats {
+    grid-template-columns: 1fr;
+  }
 }

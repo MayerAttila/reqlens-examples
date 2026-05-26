@@ -2,6 +2,7 @@ import "./styles.css";
 
 const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
 const app = document.querySelector<HTMLDivElement>("#app");
+
 const requests = [
   { label: "Success", method: "GET", path: "/demo/get/success" },
   { label: "Slow", method: "GET", path: "/demo/get/slow" },
@@ -25,49 +26,93 @@ const requests = [
   path: string;
 }>;
 
+const methodColors: Record<string, string> = {
+  DELETE: "method-delete",
+  GET: "method-get",
+  PATCH: "method-patch",
+  POST: "method-post",
+  PUT: "method-put"
+};
+
+const statusTone = (status?: number) => {
+  if (!status) {
+    return "status-muted";
+  }
+
+  if (status >= 400) {
+    return "status-error";
+  }
+
+  return "status-success";
+};
+
 if (app) {
   app.innerHTML = `
-    <main class="mx-auto min-h-screen w-[min(960px,calc(100%-32px))] px-4 py-10 text-stone-950 md:py-16">
-      <section class="max-w-3xl">
-        <p class="font-sans text-xs font-black uppercase tracking-[0.12em] text-red-900">
-          Reqlens example
-        </p>
-        <h1 class="mt-3 max-w-4xl font-serif text-5xl font-black leading-[0.92] tracking-[-0.06em] md:text-8xl">
-          Click frontend buttons. Track backend API calls.
-        </h1>
-        <p class="mt-5 max-w-2xl text-lg leading-8 text-stone-700 md:text-xl">
-          This Vite app calls a separate Express API. The Reqlens middleware is
-          installed only on the backend, so each API response is reported to the
-          ingest service.
-        </p>
-      </section>
-
-      <section class="my-10 grid grid-cols-1 gap-3 md:grid-cols-3" aria-label="Test API routes">
-        ${requests
-          .map(
-            (request) => `
-              <button
-                class="rounded-[18px] border-2 border-stone-950 bg-[#f9f4e5] p-5 font-sans text-sm font-black text-stone-950 shadow-[5px_5px_0_#1d1a16] transition hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-[2px_2px_0_#1d1a16]"
-                data-method="${request.method}"
-                data-path="${request.path}"
-              >
-                <span class="block text-xs uppercase tracking-[0.12em] text-red-900">${request.label}</span>
-                <span class="mt-1 block">${request.method}</span>
-                <span class="mt-1 block break-all text-xs font-semibold text-stone-700">${request.path}</span>
-              </button>
-            `
-          )
-          .join("")}
-      </section>
-
-      <section class="grid gap-4 rounded-3xl border-2 border-stone-950 bg-white/55 p-6" aria-live="polite">
-        <div>
-          <span class="font-sans text-xs font-black uppercase tracking-[0.12em] text-red-900">
-            Last request
-          </span>
-          <strong id="route" class="mt-1 block text-2xl">None yet</strong>
+    <main class="example-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Reqlens example home">
+          <span class="brand-mark">R</span>
+          <span>Reqlens</span>
+        </a>
+        <div class="environment-pill">
+          <span class="live-dot"></span>
+          Example project
         </div>
-        <pre id="output" class="min-h-44 overflow-auto rounded-2xl bg-stone-950 p-5 text-sm text-[#f9f4e5]">Click a route to start.</pre>
+      </header>
+
+      <section class="workspace-grid">
+        <section class="panel route-panel" aria-label="Test API routes">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Request controls</p>
+              <h2>Demo calls</h2>
+            </div>
+            <span class="count-pill">${requests.length} routes</span>
+          </div>
+
+          <div class="route-grid">
+            ${requests
+              .map(
+                (request) => `
+                  <button
+                    class="route-card ${request.label.toLowerCase()}"
+                    data-method="${request.method}"
+                    data-path="${request.path}"
+                  >
+                    <span class="route-topline">
+                      <span class="method-pill ${methodColors[request.method]}">${request.method}</span>
+                      <span class="state-pill">${request.label}</span>
+                    </span>
+                    <span class="route-path">${request.path}</span>
+                  </button>
+                `
+              )
+              .join("")}
+          </div>
+        </section>
+
+        <aside class="panel response-panel" aria-live="polite">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Last response</p>
+              <h2 id="route">None yet</h2>
+            </div>
+            <span id="status" class="status-badge status-muted">Idle</span>
+          </div>
+
+          <dl class="result-stats">
+            <div>
+              <dt>Latency</dt>
+              <dd id="duration">-</dd>
+            </div>
+            <div>
+              <dt>Method</dt>
+              <dd id="method">-</dd>
+            </div>
+          </dl>
+
+          <pre id="output" class="response-output">Select a route to send a request.</pre>
+        </aside>
       </section>
     </main>
   `;
@@ -75,6 +120,9 @@ if (app) {
 
 const output = document.querySelector<HTMLPreElement>("#output");
 const routeLabel = document.querySelector<HTMLElement>("#route");
+const statusLabel = document.querySelector<HTMLElement>("#status");
+const durationLabel = document.querySelector<HTMLElement>("#duration");
+const methodLabel = document.querySelector<HTMLElement>("#method");
 const buttons = document.querySelectorAll<HTMLButtonElement>("button[data-method][data-path]");
 
 buttons.forEach((button) => {
@@ -90,7 +138,19 @@ buttons.forEach((button) => {
       (item) => item.method === method && item.path === path
     );
 
+    buttons.forEach((item) => item.classList.remove("is-active"));
+    button.classList.add("is-active", "is-loading");
     routeLabel.textContent = `${method} ${path}`;
+    if (methodLabel) {
+      methodLabel.textContent = method;
+    }
+    if (durationLabel) {
+      durationLabel.textContent = "-";
+    }
+    if (statusLabel) {
+      statusLabel.className = "status-badge status-muted";
+      statusLabel.textContent = "Sending";
+    }
     output.textContent = "Loading...";
 
     try {
@@ -106,6 +166,13 @@ buttons.forEach((button) => {
           : await response.json();
       const durationMs = Math.round(performance.now() - startedAt);
 
+      if (durationLabel) {
+        durationLabel.textContent = `${durationMs} ms`;
+      }
+      if (statusLabel) {
+        statusLabel.className = `status-badge ${statusTone(response.status)}`;
+        statusLabel.textContent = String(response.status);
+      }
       output.textContent = JSON.stringify(
         {
           apiUrl,
@@ -119,7 +186,16 @@ buttons.forEach((button) => {
         2
       );
     } catch (error) {
+      if (statusLabel) {
+        statusLabel.className = "status-badge status-error";
+        statusLabel.textContent = "Failed";
+      }
+      if (durationLabel) {
+        durationLabel.textContent = "-";
+      }
       output.textContent = JSON.stringify({ error: String(error) }, null, 2);
+    } finally {
+      button.classList.remove("is-loading");
     }
   });
 });
